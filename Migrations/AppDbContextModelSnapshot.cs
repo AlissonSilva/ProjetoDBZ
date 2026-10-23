@@ -32,10 +32,12 @@ namespace ProjetoDBZ.Migrations
                     b.Property<string>("Nome")
                         .HasColumnType("longtext");
 
-                    b.Property<string>("Tipo")
-                        .HasColumnType("longtext");
+                    b.Property<int?>("TipoId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TipoId");
 
                     b.ToTable("Personagens");
                 });
@@ -54,6 +56,15 @@ namespace ProjetoDBZ.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Tipos");
+                });
+
+            modelBuilder.Entity("ProjetoDBZ.Models.Personagem", b =>
+                {
+                    b.HasOne("ProjetoDBZ.Models.Tipo", "Tipo")
+                        .WithMany()
+                        .HasForeignKey("TipoId");
+
+                    b.Navigation("Tipo");
                 });
 #pragma warning restore 612, 618
         }
