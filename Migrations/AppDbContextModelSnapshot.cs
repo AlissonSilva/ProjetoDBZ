@@ -37,7 +37,23 @@ namespace ProjetoDBZ.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DBZ");
+                    b.ToTable("Personagens");
+                });
+
+            modelBuilder.Entity("ProjetoDBZ.Models.Tipo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Nome")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Tipos");
                 });
 #pragma warning restore 612, 618
         }
