@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ProjetoDBZ.Data;
+using ProjetoDBZ.Models;
 
 namespace ProjetoDBZ.Controllers
 {
@@ -16,7 +18,64 @@ namespace ProjetoDBZ.Controllers
         {
             _appDbContext = context;
         }
-        
+
+        [HttpPost]
+        public async Task<IActionResult> AddPersonagem(Personagem personagem)
+        {
+            _appDbContext.DBZ.Add(personagem);
+            await _appDbContext.SaveChangesAsync();
+            return Ok(personagem);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetPersonagens()
+        {
+            var personagens = await _appDbContext.DBZ.ToListAsync();
+            return Ok(personagens);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetPersonagemById(int id)
+        {
+            var personagem = await _appDbContext.DBZ.FindAsync(id);
+            if (personagem == null)
+            {
+                return NotFound();
+            }
+            return Ok(personagem);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdatePersonagem(int id, Personagem updatedPersonagem)
+        {
+            var personagem = await _appDbContext.DBZ.FindAsync(id);
+            if (personagem == null)
+            {
+                return NotFound();
+            }
+
+            personagem.Nome = updatedPersonagem.Nome;
+            personagem.Tipo = updatedPersonagem.Tipo;
+
+            await _appDbContext.SaveChangesAsync();
+            return Ok(personagem);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeletePersonagem(int id)
+        {
+            var personagem = await _appDbContext.DBZ.FindAsync(id);
+            if (personagem == null)
+            {
+                return NotFound();
+            }
+
+            _appDbContext.DBZ.Remove(personagem);
+            await _appDbContext.SaveChangesAsync();
+            return NoContent();
+        }
+
+
 
     }
 }
