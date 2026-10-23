@@ -26,14 +26,34 @@ namespace ProjetoDBZ.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPersonagens()
         {
-            var personagens = await _appDbContext.Personagens.ToListAsync();
+            var personagens = await _appDbContext.Personagens.Join(
+                _appDbContext.Tipos,
+                p => p.Tipo.Id,
+                t => t.Id,
+                (p, t) => new Personagem
+                {
+                    Id = p.Id,
+                    Nome = p.Nome,
+                    Tipo = t
+                }
+            ).ToListAsync();
             return Ok(personagens);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetPersonagemById(int id)
         {
-            var personagem = await _appDbContext.Personagens.FindAsync(id);
+            var personagem = await _appDbContext.Personagens.Join(
+                _appDbContext.Tipos,
+                p => p.Tipo.Id,
+                t => t.Id,
+                (p, t) => new Personagem
+                {
+                    Id = p.Id,
+                    Nome = p.Nome,
+                    Tipo = t
+                }
+            ).FirstOrDefaultAsync(p => p.Id == id);
             if (personagem == null)
             {
                 return NotFound();
