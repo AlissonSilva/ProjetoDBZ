@@ -13,6 +13,7 @@ namespace ProjetoDBZ.Data
         {
         }
 
-        public DbSet<Personagem> DBZ { get; set; }
+        public DbSet<Personagem> Personagens { get; set; }
+        public DbSet<Tipo> Tipos { get; set; }
     }
 }

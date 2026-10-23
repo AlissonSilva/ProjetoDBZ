@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjetoDBZ.Data;
@@ -22,7 +18,7 @@ namespace ProjetoDBZ.Controllers
         [HttpPost]
         public async Task<IActionResult> AddPersonagem(Personagem personagem)
         {
-            _appDbContext.DBZ.Add(personagem);
+            _appDbContext.Personagens.Add(personagem);
             await _appDbContext.SaveChangesAsync();
             return Ok(personagem);
         }
@@ -30,14 +26,14 @@ namespace ProjetoDBZ.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPersonagens()
         {
-            var personagens = await _appDbContext.DBZ.ToListAsync();
+            var personagens = await _appDbContext.Personagens.ToListAsync();
             return Ok(personagens);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetPersonagemById(int id)
         {
-            var personagem = await _appDbContext.DBZ.FindAsync(id);
+            var personagem = await _appDbContext.Personagens.FindAsync(id);
             if (personagem == null)
             {
                 return NotFound();
@@ -48,7 +44,7 @@ namespace ProjetoDBZ.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdatePersonagem(int id, Personagem updatedPersonagem)
         {
-            var personagem = await _appDbContext.DBZ.FindAsync(id);
+            var personagem = await _appDbContext.Personagens.FindAsync(id);
             if (personagem == null)
             {
                 return NotFound();
@@ -64,13 +60,13 @@ namespace ProjetoDBZ.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePersonagem(int id)
         {
-            var personagem = await _appDbContext.DBZ.FindAsync(id);
+            var personagem = await _appDbContext.Personagens.FindAsync(id);
             if (personagem == null)
             {
                 return NotFound();
             }
 
-            _appDbContext.DBZ.Remove(personagem);
+            _appDbContext.Personagens.Remove(personagem);
             await _appDbContext.SaveChangesAsync();
             return NoContent();
         }
