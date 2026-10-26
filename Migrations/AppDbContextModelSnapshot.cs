@@ -58,6 +58,52 @@ namespace ProjetoDBZ.Migrations
                     b.ToTable("Tipos");
                 });
 
+            modelBuilder.Entity("ProjetoDBZ.Models.User.Role", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("ProjetoDBZ.Models.User.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Email")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("RolesId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Slug")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RolesId");
+
+                    b.ToTable("Users");
+                });
+
             modelBuilder.Entity("ProjetoDBZ.Models.Personagem", b =>
                 {
                     b.HasOne("ProjetoDBZ.Models.Tipo", "Tipo")
@@ -65,6 +111,17 @@ namespace ProjetoDBZ.Migrations
                         .HasForeignKey("TipoId");
 
                     b.Navigation("Tipo");
+                });
+
+            modelBuilder.Entity("ProjetoDBZ.Models.User.User", b =>
+                {
+                    b.HasOne("ProjetoDBZ.Models.User.Role", "Roles")
+                        .WithMany()
+                        .HasForeignKey("RolesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Roles");
                 });
 #pragma warning restore 612, 618
         }
