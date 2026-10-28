@@ -23,6 +23,24 @@ namespace ProjetoDBZ.Controllers
             return Ok(personagem);
         }
 
+        public async Task<IActionResult> AddImagem(int id, IFormFile imagem)
+        {
+            var personagem = await _appDbContext.Personagens.FindAsync(id);
+            if (personagem == null)
+            {
+                return NotFound();
+            }
+
+            using (var memoryStream = new MemoryStream())
+            {
+                await imagem.CopyToAsync(memoryStream);
+                personagem.Imagem = memoryStream.ToArray();
+            }
+
+            await _appDbContext.SaveChangesAsync();
+            return Ok(personagem);
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetPersonagens()
         {

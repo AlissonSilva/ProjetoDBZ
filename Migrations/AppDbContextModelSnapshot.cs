@@ -29,11 +29,17 @@ namespace ProjetoDBZ.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<byte[]>("Imagem")
+                        .HasColumnType("longblob");
+
                     b.Property<string>("Nome")
                         .HasColumnType("longtext");
 
                     b.Property<int?>("TipoId")
                         .HasColumnType("int");
+
+                    b.Property<string>("descricao")
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
