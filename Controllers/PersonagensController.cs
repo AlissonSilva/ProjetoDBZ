@@ -23,6 +23,7 @@ namespace ProjetoDBZ.Controllers
             return Ok(personagem);
         }
 
+        [HttpPost("{id}/imagem")]
         public async Task<IActionResult> AddImagem(int id, IFormFile imagem)
         {
             var personagem = await _appDbContext.Personagens.FindAsync(id);
