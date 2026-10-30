@@ -77,9 +77,7 @@ namespace ProjetoDBZ.Controllers
                 IsActive = true
             };
 
-            user.PasswordHash = _passwordHasher.HashPassword(
-                user,
-                request.Password);
+            user.PasswordHash = _passwordHasher.HashPassword(user,request.Password);
 
             _dbContext.Users.Add(user);
             await _dbContext.SaveChangesAsync();
@@ -134,20 +132,13 @@ namespace ProjetoDBZ.Controllers
                 await _dbContext.SaveChangesAsync();
             }
 
-            var jwtKey = _configuration["Jwt:Key"]
-                ?? throw new InvalidOperationException(
-                    "Chave JWT não configurada.");
+            var jwtKey = _configuration["Jwt:Key"] ?? throw new InvalidOperationException("Chave JWT não configurada.");
 
-            var issuer = _configuration["Jwt:Issuer"]
-                ?? throw new InvalidOperationException(
-                    "Issuer JWT não configurado.");
+            var issuer = _configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("Issuer JWT não configurado.");
 
-            var audience = _configuration["Jwt:Audience"]
-                ?? throw new InvalidOperationException(
-                    "Audience JWT não configurada.");
+            var audience = _configuration["Jwt:Audience"] ?? throw new InvalidOperationException("Audience JWT não configurada.");
 
-            var expirationMinutes =
-                _configuration.GetValue<int>("Jwt:ExpirationMinutes", 15);
+            var expirationMinutes = _configuration.GetValue<int>("Jwt:ExpirationMinutes", 15);
 
             if (expirationMinutes <= 0)
             {
