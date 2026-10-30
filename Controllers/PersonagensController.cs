@@ -53,6 +53,8 @@ namespace ProjetoDBZ.Controllers
                 {
                     Id = p.Id,
                     Nome = p.Nome,
+                    Descricao = p.Descricao,
+                    Imagem = p.Imagem,
                     Tipo = t
                 }
             ).ToListAsync();
@@ -70,6 +72,8 @@ namespace ProjetoDBZ.Controllers
                 {
                     Id = p.Id,
                     Nome = p.Nome,
+                    Descricao = p.Descricao,
+                    Imagem = p.Imagem,
                     Tipo = t
                 }
             ).FirstOrDefaultAsync(p => p.Id == id);
@@ -91,10 +95,43 @@ namespace ProjetoDBZ.Controllers
 
             personagem.Nome = updatedPersonagem.Nome;
             personagem.Tipo = updatedPersonagem.Tipo;
+            personagem.Descricao = updatedPersonagem.Descricao;
+            personagem.Imagem = updatedPersonagem.Imagem;
 
             await _appDbContext.SaveChangesAsync();
             return Ok(personagem);
         }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> PatchPersonagem(int id, Personagem updatedPersonagem)
+        {
+            var personagem = await _appDbContext.Personagens.FindAsync(id);
+            if (personagem == null)
+            {
+                return NotFound();
+            }
+            
+            if (!string.IsNullOrEmpty(updatedPersonagem.Nome))
+            {
+                personagem.Nome = updatedPersonagem.Nome;
+            }
+            if (updatedPersonagem.Tipo != null)
+            {
+                personagem.Tipo = updatedPersonagem.Tipo;
+            }
+            if (!string.IsNullOrEmpty(updatedPersonagem.Descricao))
+            {
+                personagem.Descricao = updatedPersonagem.Descricao;
+            }
+            if (updatedPersonagem.Imagem != null && updatedPersonagem.Imagem.Length > 0)
+            {
+                personagem.Imagem = updatedPersonagem.Imagem;
+            }
+
+            
+            await _appDbContext.SaveChangesAsync();
+            return Ok(personagem);
+        }   
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePersonagem(int id)
