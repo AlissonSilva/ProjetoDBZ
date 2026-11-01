@@ -5,6 +5,8 @@ namespace ProjetoDBZ.Models
         public int Id { get; set; }
         public string Nome { get; set; }
         public string Descricao { get; set; }
+        public bool Publicar { get; set; }
+        public bool Ativo { get; set; }
         public byte[] Imagem { get; set; }
         public Tipo Tipo { get; set; }
 

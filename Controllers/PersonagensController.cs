@@ -16,70 +16,106 @@ namespace ProjetoDBZ.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddPersonagem(Personagem personagem)
+        public async Task<IActionResult> AddPersonagem([FromBody] Personagem personagem)
         {
             _appDbContext.Personagens.Add(personagem);
             await _appDbContext.SaveChangesAsync();
-            return Ok(personagem);
+
+            return CreatedAtAction(
+                nameof(GetPersonagemById),
+                new { id = personagem.Id },
+                personagem
+            );
+        }
+
+        [HttpPut("{id}/imagem")]
+        public async Task<IActionResult> UpdateImagem(int id, IFormFile imagem)
+        {
+            var personagem = await _appDbContext.Personagens.FindAsync(id);
+
+            if (personagem == null)
+                return NotFound("Personagem não encontrado.");
+
+            if (imagem == null || imagem.Length == 0)
+                return BadRequest("Nenhuma imagem foi enviada.");
+
+            const long tamanhoMaximo = 5 * 1024 * 1024; // 5 MB
+
+            if (imagem.Length > tamanhoMaximo)
+                return BadRequest("A imagem deve ter no máximo 5 MB.");
+
+            var tiposPermitidos = new[]
+            {
+                "image/jpeg",
+                "image/png",
+                "image/webp"
+            };
+
+            if (!tiposPermitidos.Contains(imagem.ContentType))
+                return BadRequest("Formato de imagem não permitido.");
+
+            using var memoryStream = new MemoryStream();
+
+            await imagem.CopyToAsync(memoryStream);
+
+            personagem.Imagem = memoryStream.ToArray();
+
+            await _appDbContext.SaveChangesAsync();
+
+            return NoContent();
         }
 
         [HttpPost("{id}/imagem")]
         public async Task<IActionResult> AddImagem(int id, IFormFile imagem)
         {
             var personagem = await _appDbContext.Personagens.FindAsync(id);
-            if (personagem == null)
-            {
-                return NotFound();
-            }
 
-            using (var memoryStream = new MemoryStream())
+            if (personagem == null)
+                return NotFound("Personagem não encontrado.");
+
+            if (imagem == null || imagem.Length == 0)
+                return BadRequest("Nenhuma imagem foi enviada.");
+
+            const long tamanhoMaximo = 5 * 1024 * 1024; // 5 MB
+
+            if (imagem.Length > tamanhoMaximo)
+                return BadRequest("A imagem deve ter no máximo 5 MB.");
+
+            var tiposPermitidos = new[]
             {
-                await imagem.CopyToAsync(memoryStream);
-                personagem.Imagem = memoryStream.ToArray();
-            }
+                "image/jpeg",
+                "image/png",
+                "image/webp"
+            };
+
+            if (!tiposPermitidos.Contains(imagem.ContentType))
+                return BadRequest("Formato de imagem não permitido.");
+
+            using var memoryStream = new MemoryStream();
+
+            await imagem.CopyToAsync(memoryStream);
+
+            personagem.Imagem = memoryStream.ToArray();
 
             await _appDbContext.SaveChangesAsync();
-            return Ok(personagem);
+
+            return NoContent();
         }
 
         [HttpGet]
         public async Task<IActionResult> GetPersonagens()
         {
-            var personagens = await _appDbContext.Personagens.Join(
-                _appDbContext.Tipos,
-                p => p.Tipo.Id,
-                t => t.Id,
-                (p, t) => new Personagem
-                {
-                    Id = p.Id,
-                    Nome = p.Nome,
-                    Descricao = p.Descricao,
-                    Imagem = p.Imagem,
-                    Tipo = t
-                }
-            ).ToListAsync();
+            var personagens = await _appDbContext.Personagens.AsNoTracking().Include(p => p.Tipo).ToListAsync();
             return Ok(personagens);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetPersonagemById(int id)
         {
-            var personagem = await _appDbContext.Personagens.Join(
-                _appDbContext.Tipos,
-                p => p.Tipo.Id,
-                t => t.Id,
-                (p, t) => new Personagem
-                {
-                    Id = p.Id,
-                    Nome = p.Nome,
-                    Descricao = p.Descricao,
-                    Imagem = p.Imagem,
-                    Tipo = t
-                }
-            ).FirstOrDefaultAsync(p => p.Id == id);
+            var personagem = await _appDbContext.Personagens.AsNoTracking().Include(p => p.Tipo).FirstOrDefaultAsync(p => p.Id == id);
             if (personagem == null)
             {
-                return NotFound();
+                return NotFound("Personagem não encontrado.");
             }
             return Ok(personagem);
         }
@@ -110,7 +146,7 @@ namespace ProjetoDBZ.Controllers
             {
                 return NotFound();
             }
-            
+
             if (!string.IsNullOrEmpty(updatedPersonagem.Nome))
             {
                 personagem.Nome = updatedPersonagem.Nome;
@@ -128,10 +164,10 @@ namespace ProjetoDBZ.Controllers
                 personagem.Imagem = updatedPersonagem.Imagem;
             }
 
-            
+
             await _appDbContext.SaveChangesAsync();
             return Ok(personagem);
-        }   
+        }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePersonagem(int id)
@@ -146,6 +182,8 @@ namespace ProjetoDBZ.Controllers
             await _appDbContext.SaveChangesAsync();
             return NoContent();
         }
+
+
 
 
 
