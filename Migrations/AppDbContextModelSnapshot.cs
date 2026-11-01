@@ -29,6 +29,9 @@ namespace ProjetoDBZ.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<string>("Descricao")
                         .HasColumnType("longtext");
 
@@ -37,6 +40,9 @@ namespace ProjetoDBZ.Migrations
 
                     b.Property<string>("Nome")
                         .HasColumnType("longtext");
+
+                    b.Property<bool>("Publicar")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<int?>("TipoId")
                         .HasColumnType("int");
@@ -56,8 +62,14 @@ namespace ProjetoDBZ.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<string>("Nome")
                         .HasColumnType("longtext");
+
+                    b.Property<bool>("Publicar")
+                        .HasColumnType("tinyint(1)");
 
                     b.HasKey("Id");
 
