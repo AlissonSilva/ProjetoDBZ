@@ -21,6 +21,29 @@ namespace ProjetoDBZ.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("ProjetoDBZ.Models.Favorito", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("PersonagemId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PersonagemId");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("Favoritos");
+                });
+
             modelBuilder.Entity("ProjetoDBZ.Models.Personagem", b =>
                 {
                     b.Property<int>("Id")
@@ -152,6 +175,25 @@ namespace ProjetoDBZ.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("ProjetoDBZ.Models.Favorito", b =>
+                {
+                    b.HasOne("ProjetoDBZ.Models.Personagem", "Personagem")
+                        .WithMany()
+                        .HasForeignKey("PersonagemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjetoDBZ.Models.User.User", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Personagem");
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("ProjetoDBZ.Models.Personagem", b =>
