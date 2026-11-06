@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjetoDBZ.Data;
+using ProjetoDBZ.DTO.Personagens;
 using ProjetoDBZ.Models;
 
 namespace ProjetoDBZ.Controllers
@@ -16,15 +17,40 @@ namespace ProjetoDBZ.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddPersonagem([FromBody] Personagem personagem)
+        public async Task<IActionResult> AddPersonagem([FromBody] CreatePersonagemDto dto)
         {
+            var tipo = await _appDbContext.Tipos.FindAsync(dto.TipoId);
+            if (tipo == null)
+            {
+                return BadRequest("Tipo de personagem inválido.");
+            }
+
+            var personagem = new Personagem
+            {
+                Nome = dto.Nome,
+                Descricao = dto.Descricao,
+                Tipo = tipo,
+                Publicar = dto.Publicar,
+                Ativo = dto.Ativo
+            };
+
             _appDbContext.Personagens.Add(personagem);
             await _appDbContext.SaveChangesAsync();
 
             return CreatedAtAction(
                 nameof(GetPersonagemById),
                 new { id = personagem.Id },
-                personagem
+                new PersonagemResponseDto
+                {
+                    Id = personagem.Id,
+                    Nome = personagem.Nome,
+                    Descricao = personagem.Descricao,
+                    TipoId = personagem.Tipo.Id,
+                    TipoNome = personagem.Tipo.Nome,
+                    PossuiImagem = personagem.Imagem != null && personagem.Imagem.Length > 0,
+                    Publicar = personagem.Publicar,
+                    Ativo = personagem.Ativo
+                }
             );
         }
 
@@ -105,14 +131,43 @@ namespace ProjetoDBZ.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPersonagens()
         {
-            var personagens = await _appDbContext.Personagens.AsNoTracking().Include(p => p.Tipo).ToListAsync();
+            var personagens = await _appDbContext.Personagens
+                .AsNoTracking()
+                .Include(p => p.Tipo)
+                .Select(p => new PersonagemResponseDto
+                {
+                    Id = p.Id,
+                    Nome = p.Nome,
+                    Descricao = p.Descricao,
+                    TipoId = p.Tipo.Id,
+                    TipoNome = p.Tipo.Nome,
+                    PossuiImagem = p.Imagem != null && p.Imagem.Length > 0,
+                    Publicar = p.Publicar,
+                    Ativo = p.Ativo
+                })
+                .ToListAsync();
+
             return Ok(personagens);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetPersonagemById(int id)
         {
-            var personagem = await _appDbContext.Personagens.AsNoTracking().Include(p => p.Tipo).FirstOrDefaultAsync(p => p.Id == id);
+            var personagem = await _appDbContext.Personagens
+                .AsNoTracking()
+                .Include(p => p.Tipo)
+                .Select(p => new PersonagemResponseDto
+                {
+                    Id = p.Id,
+                    Nome = p.Nome,
+                    Descricao = p.Descricao,
+                    TipoId = p.Tipo.Id,
+                    TipoNome = p.Tipo.Nome,
+                    PossuiImagem = p.Imagem != null && p.Imagem.Length > 0,
+                    Publicar = p.Publicar,
+                    Ativo = p.Ativo
+                })
+                .FirstOrDefaultAsync(p => p.Id == id);
             if (personagem == null)
             {
                 return NotFound("Personagem não encontrado.");
@@ -135,7 +190,17 @@ namespace ProjetoDBZ.Controllers
             personagem.Imagem = updatedPersonagem.Imagem;
 
             await _appDbContext.SaveChangesAsync();
-            return Ok(personagem);
+            return Ok(new PersonagemResponseDto
+            {
+                Id = personagem.Id,
+                Nome = personagem.Nome,
+                Descricao = personagem.Descricao,
+                TipoId = personagem.Tipo.Id,
+                TipoNome = personagem.Tipo.Nome,
+                PossuiImagem = personagem.Imagem != null && personagem.Imagem.Length > 0,
+                Publicar = personagem.Publicar,
+                Ativo = personagem.Ativo
+            });
         }
 
         [HttpPatch("{id}")]
@@ -166,7 +231,17 @@ namespace ProjetoDBZ.Controllers
 
 
             await _appDbContext.SaveChangesAsync();
-            return Ok(personagem);
+            return Ok(new PersonagemResponseDto
+            {
+                Id = personagem.Id,
+                Nome = personagem.Nome,
+                Descricao = personagem.Descricao,
+                TipoId = personagem.Tipo.Id,
+                TipoNome = personagem.Tipo.Nome,
+                PossuiImagem = personagem.Imagem != null && personagem.Imagem.Length > 0,
+                Publicar = personagem.Publicar,
+                Ativo = personagem.Ativo
+            });
         }
 
         [HttpDelete("{id}")]
@@ -182,10 +257,6 @@ namespace ProjetoDBZ.Controllers
             await _appDbContext.SaveChangesAsync();
             return NoContent();
         }
-
-
-
-
 
     }
 }
