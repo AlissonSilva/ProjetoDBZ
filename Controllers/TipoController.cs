@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjetoDBZ.Data;
+using ProjetoDBZ.DTO.Tipos;
 using ProjetoDBZ.Models;
 
 namespace ProjetoDBZ.Controllers
@@ -21,8 +22,15 @@ namespace ProjetoDBZ.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddTipo(Tipo tipo)
+        public async Task<IActionResult> AddTipo(CreateTipoDto dto)
         {
+            var tipo = new Tipo
+            {
+                Nome = dto.Nome,
+                Ativo = dto.Ativo,
+                Publicar = dto.Publicar
+            };
+
             _appDbContext.Tipos.Add(tipo);
             await _appDbContext.SaveChangesAsync();
             return Ok(tipo);
@@ -46,8 +54,8 @@ namespace ProjetoDBZ.Controllers
             return Ok(tipo);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateTipo(int id, Tipo updatedTipo)
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> UpdateTipo(int id, CreateTipoDto dto)
         {
             var tipo = await _appDbContext.Tipos.FindAsync(id);
             if (tipo == null)
@@ -55,7 +63,20 @@ namespace ProjetoDBZ.Controllers
                 return NotFound();
             }
 
-            tipo.Nome = updatedTipo.Nome;
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if(dto.Nome != null)
+            {
+                tipo.Nome = dto.Nome;
+            }else if(dto.Ativo != null)
+            {
+                tipo.Ativo = dto.Ativo;
+            }else if(dto.Publicar != null)
+            {
+                tipo.Publicar = dto.Publicar;
+            }
 
             await _appDbContext.SaveChangesAsync();
             return Ok(tipo);
