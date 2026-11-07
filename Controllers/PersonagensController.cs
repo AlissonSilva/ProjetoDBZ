@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjetoDBZ.Data;
+using ProjetoDBZ.DTO.Common;
 using ProjetoDBZ.DTO.Personagens;
 using ProjetoDBZ.Models;
 
@@ -129,25 +130,44 @@ namespace ProjetoDBZ.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetPersonagens()
+        public async Task<IActionResult> GetPersonagens(int page = 1, int pageSize = 10)
         {
-            var personagens = await _appDbContext.Personagens
-                .AsNoTracking()
-                .Include(p => p.Tipo)
-                .Select(p => new PersonagemResponseDto
-                {
-                    Id = p.Id,
-                    Nome = p.Nome,
-                    Descricao = p.Descricao,
-                    TipoId = p.Tipo.Id,
-                    TipoNome = p.Tipo.Nome,
-                    PossuiImagem = p.Imagem != null && p.Imagem.Length > 0,
-                    Publicar = p.Publicar,
-                    Ativo = p.Ativo
-                })
-                .ToListAsync();
+            if (page <= 0 || pageSize <= 0)
+                return BadRequest("Page e PageSize devem ser maiores que zero.");
 
-            return Ok(personagens);
+            var query = _appDbContext.Personagens.AsNoTracking().Include(p => p.Tipo);
+
+            var totalRecords = await query.CountAsync();
+
+            var personagens = await query
+            .OrderBy(p => p.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(p => new PersonagemResponseDto
+            {
+                Id = p.Id,
+                Nome = p.Nome,
+                Descricao = p.Descricao,
+                TipoId = p.Tipo.Id,
+                TipoNome = p.Tipo.Nome,
+                PossuiImagem = p.Imagem != null && p.Imagem.Length > 0,
+                Publicar = p.Publicar,
+                Ativo = p.Ativo
+            })
+            .ToListAsync();
+
+            var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+
+            var response = new PagedResponseDto<PersonagemResponseDto>
+            {
+                Page = page,
+                PageSize = pageSize,
+                TotalRecords = totalRecords,
+                TotalPages = (int)Math.Ceiling(totalRecords / (double)pageSize),
+                Data = personagens
+            };
+
+            return Ok(response);
         }
 
         [HttpGet("{id}")]
