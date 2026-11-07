@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using ProjetoDBZ.Data;
 using Microsoft.AspNetCore.Identity;
 using ProjetoDBZ.Models.User;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,8 @@ builder.Services.AddSwaggerGen(c =>
         BearerFormat = "JWT",
         Scheme = "Bearer"
     });
+
+    c.DocumentFilter<HideSchemasDocumentFilter>();
 
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
@@ -96,7 +99,12 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(
+        options =>
+        {
+            options.DefaultModelsExpandDepth(-1);
+        }
+    );
 }
 
 app.UseHttpsRedirection();
@@ -107,3 +115,15 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+internal class HideSchemasDocumentFilter : IDocumentFilter
+{
+    public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
+    {
+        IDictionary<string, OpenApiSchema> _remove = swaggerDoc.Components.Schemas;
+        foreach (KeyValuePair<string, OpenApiSchema> _item in _remove)
+        {
+            swaggerDoc.Components.Schemas.Remove(_item.Key);
+        }
+    }
+}
