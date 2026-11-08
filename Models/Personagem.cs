@@ -9,6 +9,7 @@ namespace ProjetoDBZ.Models
         public bool Ativo { get; set; }
         public byte[] Imagem { get; set; }
         public Tipo Tipo { get; set; }
+        public int TipoId { get; set; }
 
     }
 }

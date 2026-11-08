@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using ProjetoDBZ.Data;
 using ProjetoDBZ.DTO.Common;
 using ProjetoDBZ.DTO.Personagens;
@@ -130,12 +131,23 @@ namespace ProjetoDBZ.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetPersonagens(int page = 1, int pageSize = 10)
+        public async Task<IActionResult> GetPersonagens(int page = 1, int pageSize = 10, string? nome = null, int? tipoId = null)
         {
             if (page <= 0 || pageSize <= 0)
                 return BadRequest("Page e PageSize devem ser maiores que zero.");
 
-            var query = _appDbContext.Personagens.AsNoTracking().Include(p => p.Tipo);
+            var query = _appDbContext.Personagens.AsNoTracking().Include(p => p.Tipo).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(nome))
+            {
+                query = query.Where(p => p.Nome.Contains(nome));
+            }
+
+            // Filtro por tipo
+            if (tipoId.HasValue)
+            {
+                query = query.Where(p => p.Tipo.Id == tipoId.Value);
+            }
 
             var totalRecords = await query.CountAsync();
 
