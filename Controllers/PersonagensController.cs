@@ -248,9 +248,9 @@ namespace ProjetoDBZ.Controllers
             {
                 personagem.Nome = updatedPersonagem.Nome;
             }
-            if (updatedPersonagem.Tipo != null)
+            if (updatedPersonagem.TipoId != 0)
             {
-                personagem.Tipo = updatedPersonagem.Tipo;
+                personagem.TipoId = updatedPersonagem.TipoId;
             }
             if (!string.IsNullOrEmpty(updatedPersonagem.Descricao))
             {
@@ -268,8 +268,7 @@ namespace ProjetoDBZ.Controllers
                 Id = personagem.Id,
                 Nome = personagem.Nome,
                 Descricao = personagem.Descricao,
-                TipoId = personagem.Tipo.Id,
-                TipoNome = personagem.Tipo.Nome,
+                TipoId = personagem.TipoId,
                 PossuiImagem = personagem.Imagem != null && personagem.Imagem.Length > 0,
                 Publicar = personagem.Publicar,
                 Ativo = personagem.Ativo
