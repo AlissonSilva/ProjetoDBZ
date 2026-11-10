@@ -15,7 +15,7 @@ namespace ProjetoDBZ.Middleware
 
         public ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
         {
-            _logger.LogError(exception, "An unhandled exception occurred.");
+            _logger.LogError(exception, "An unhandled exception occurred with TraceId: {TraceId}", httpContext.TraceIdentifier);
 
             var problemDetails = new ProblemDetails
             {
@@ -23,6 +23,8 @@ namespace ProjetoDBZ.Middleware
                 Title = "An unexpected error occurred.",
                 Detail = exception.Message
             };
+
+            problemDetails.Extensions["traceId"] = httpContext.TraceIdentifier;
 
             httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
             httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);

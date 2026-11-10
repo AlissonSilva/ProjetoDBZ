@@ -40,8 +40,6 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "Bearer"
     });
 
-    //c.DocumentFilter<HideSchemasDocumentFilter>();
-
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -114,6 +112,7 @@ builder.Host.UseSerilog((context, services, loggerConfiguration) =>
 
 var app = builder.Build();
 
+app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseExceptionHandler();
 
 // Configure the HTTP request pipeline.
