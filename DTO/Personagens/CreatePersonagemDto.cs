@@ -13,7 +13,8 @@ namespace ProjetoDBZ.DTO.Personagens
         ErrorMessage = "O nome deve ter entre 2 e 100 caracteres.")]
         public string Nome { get; set; } = string.Empty;
         [Required(ErrorMessage = "A descrição é obrigatória.")]
-        [StringLength(500, ErrorMessage = "A descrição deve ter no máximo 500 caracteres.")]
+        [StringLength(10000, ErrorMessage = "A descrição deve ter no máximo 10000 caracteres.")]
+        [MaxLength(10000, ErrorMessage = "A descrição deve ter no máximo 10000 caracteres.")]
         public string Descricao { get; set; } = string.Empty;
 
         [Range(1, int.MaxValue, ErrorMessage = "Selecione um tipo válido.")]
