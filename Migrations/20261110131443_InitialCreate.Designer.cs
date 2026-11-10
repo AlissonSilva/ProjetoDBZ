@@ -11,8 +11,8 @@ using ProjetoDBZ.Data;
 namespace ProjetoDBZ.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261026150303_RoleAndUser")]
-    partial class RoleAndUser
+    [Migration("20261110131443_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,29 @@ namespace ProjetoDBZ.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("ProjetoDBZ.Models.Favorito", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("PersonagemId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PersonagemId");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("Favoritos");
+                });
+
             modelBuilder.Entity("ProjetoDBZ.Models.Personagem", b =>
                 {
                     b.Property<int>("Id")
@@ -32,10 +55,22 @@ namespace ProjetoDBZ.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Descricao")
+                        .HasColumnType("longtext");
+
+                    b.Property<byte[]>("Imagem")
+                        .HasColumnType("longblob");
+
                     b.Property<string>("Nome")
                         .HasColumnType("longtext");
 
-                    b.Property<int?>("TipoId")
+                    b.Property<bool>("Publicar")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("TipoId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -53,8 +88,14 @@ namespace ProjetoDBZ.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool?>("Ativo")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<string>("Nome")
                         .HasColumnType("longtext");
+
+                    b.Property<bool?>("Publicar")
+                        .HasColumnType("tinyint(1)");
 
                     b.HasKey("Id");
 
@@ -70,11 +111,27 @@ namespace ProjetoDBZ.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
-                        .HasColumnType("longtext");
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Name")
+                        .IsUnique();
+
                     b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "User"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Admin"
+                        });
                 });
 
             modelBuilder.Entity("ProjetoDBZ.Models.User.User", b =>
@@ -86,12 +143,18 @@ namespace ProjetoDBZ.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Email")
-                        .HasColumnType("longtext");
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("PasswordHash")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<int>("RolesId")
@@ -100,18 +163,49 @@ namespace ProjetoDBZ.Migrations
                     b.Property<string>("Slug")
                         .HasColumnType("longtext");
 
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.HasIndex("RolesId");
 
+                    b.HasIndex("Username")
+                        .IsUnique();
+
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("ProjetoDBZ.Models.Favorito", b =>
+                {
+                    b.HasOne("ProjetoDBZ.Models.Personagem", "Personagem")
+                        .WithMany()
+                        .HasForeignKey("PersonagemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjetoDBZ.Models.User.User", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Personagem");
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("ProjetoDBZ.Models.Personagem", b =>
                 {
                     b.HasOne("ProjetoDBZ.Models.Tipo", "Tipo")
                         .WithMany()
-                        .HasForeignKey("TipoId");
+                        .HasForeignKey("TipoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Tipo");
                 });
@@ -119,12 +213,17 @@ namespace ProjetoDBZ.Migrations
             modelBuilder.Entity("ProjetoDBZ.Models.User.User", b =>
                 {
                     b.HasOne("ProjetoDBZ.Models.User.Role", "Roles")
-                        .WithMany()
+                        .WithMany("Users")
                         .HasForeignKey("RolesId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Roles");
+                });
+
+            modelBuilder.Entity("ProjetoDBZ.Models.User.Role", b =>
+                {
+                    b.Navigation("Users");
                 });
 #pragma warning restore 612, 618
         }

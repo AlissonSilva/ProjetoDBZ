@@ -67,7 +67,7 @@ namespace ProjetoDBZ.Migrations
                     b.Property<bool>("Publicar")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<int?>("TipoId")
+                    b.Property<int>("TipoId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -85,13 +85,13 @@ namespace ProjetoDBZ.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("Ativo")
+                    b.Property<bool?>("Ativo")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Nome")
                         .HasColumnType("longtext");
 
-                    b.Property<bool>("Publicar")
+                    b.Property<bool?>("Publicar")
                         .HasColumnType("tinyint(1)");
 
                     b.HasKey("Id");
@@ -200,7 +200,9 @@ namespace ProjetoDBZ.Migrations
                 {
                     b.HasOne("ProjetoDBZ.Models.Tipo", "Tipo")
                         .WithMany()
-                        .HasForeignKey("TipoId");
+                        .HasForeignKey("TipoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Tipo");
                 });
