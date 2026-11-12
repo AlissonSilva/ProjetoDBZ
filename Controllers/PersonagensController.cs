@@ -35,13 +35,13 @@ namespace ProjetoDBZ.Controllers
                 return BadRequest("Tipo inválido.");
             }
 
-            _ = _personagemService.AddAsync(dto);
+            var personagem = await _personagemService.AddAsync(dto);
 
-            return Ok("Personagem adicionado com sucesso.");
+            return Ok(personagem);
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetPersonagens(int page = 1, int pageSize = 10, string? nome = null, int? tipoId = null)
+        public async Task<IActionResult> GetPersonagens(int page = 1, int pageSize = 10, string nome = null, int? tipoId = null)
         {
             if (page <= 0 || pageSize <= 0)
                 return BadRequest("Page e PageSize devem ser maiores que zero.");
@@ -54,107 +54,39 @@ namespace ProjetoDBZ.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetPersonagemById(int id)
         {
-            var personagem = await _appDbContext.Personagens
-                .AsNoTracking()
-                .Include(p => p.Tipo)
-                .Select(p => new PersonagemResponseDto
-                {
-                    Id = p.Id,
-                    Nome = p.Nome,
-                    Descricao = p.Descricao,
-                    TipoId = p.Tipo.Id,
-                    TipoNome = p.Tipo.Nome,
-                    PossuiImagem = p.Imagem != null && p.Imagem.Length > 0,
-                    Publicar = p.Publicar,
-                    Ativo = p.Ativo
-                })
-                .FirstOrDefaultAsync(p => p.Id == id);
+            var personagem = await _personagemService.GetByIdAsync(id);
+
             if (personagem == null)
             {
-                return NotFound("Personagem não encontrado.");
+                return NotFound();
             }
             return Ok(personagem);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdatePersonagem(int id, Personagem updatedPersonagem)
+        public async Task<IActionResult> UpdatePersonagem(int id, PersonagemDto updatedPersonagem)
         {
-            var personagem = await _appDbContext.Personagens.FindAsync(id);
-            if (personagem == null)
-            {
-                return NotFound();
-            }
-
-            personagem.Nome = updatedPersonagem.Nome;
-            personagem.Tipo = updatedPersonagem.Tipo;
-            personagem.Descricao = updatedPersonagem.Descricao;
-            personagem.Imagem = updatedPersonagem.Imagem;
-
-            await _appDbContext.SaveChangesAsync();
-            return Ok(new PersonagemResponseDto
-            {
-                Id = personagem.Id,
-                Nome = personagem.Nome,
-                Descricao = personagem.Descricao,
-                TipoId = personagem.Tipo.Id,
-                TipoNome = personagem.Tipo.Nome,
-                PossuiImagem = personagem.Imagem != null && personagem.Imagem.Length > 0,
-                Publicar = personagem.Publicar,
-                Ativo = personagem.Ativo
-            });
+            var personagem = await _personagemService.UpdateAsync(id, updatedPersonagem);
+            return Ok(personagem);
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> PatchPersonagem(int id, Personagem updatedPersonagem)
+        public async Task<IActionResult> PatchPersonagem(int id, PersonagemDtoPatch updatedPersonagem)
         {
-            var personagem = await _appDbContext.Personagens.FindAsync(id);
-            if (personagem == null)
-            {
-                return NotFound();
-            }
+            var personagem = await _personagemService.PatchAsync(id, updatedPersonagem);
 
-            if (!string.IsNullOrEmpty(updatedPersonagem.Nome))
-            {
-                personagem.Nome = updatedPersonagem.Nome;
-            }
-            if (updatedPersonagem.TipoId != 0)
-            {
-                personagem.TipoId = updatedPersonagem.TipoId;
-            }
-            if (!string.IsNullOrEmpty(updatedPersonagem.Descricao))
-            {
-                personagem.Descricao = updatedPersonagem.Descricao;
-            }
-            if (updatedPersonagem.Imagem != null && updatedPersonagem.Imagem.Length > 0)
-            {
-                personagem.Imagem = updatedPersonagem.Imagem;
-            }
+            return Ok(personagem);
 
-
-            await _appDbContext.SaveChangesAsync();
-            return Ok(new PersonagemResponseDto
-            {
-                Id = personagem.Id,
-                Nome = personagem.Nome,
-                Descricao = personagem.Descricao,
-                TipoId = personagem.TipoId,
-                PossuiImagem = personagem.Imagem != null && personagem.Imagem.Length > 0,
-                Publicar = personagem.Publicar,
-                Ativo = personagem.Ativo
-            });
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePersonagem(int id)
         {
-            var personagem = await _appDbContext.Personagens.FindAsync(id);
-            if (personagem == null)
+            Boolean personagem = await _personagemService.DeleteAsync(id);
+            if (!personagem)
             {
                 return NotFound();
             }
-
-            _appDbContext.Personagens.Remove(personagem);
-            await _appDbContext.SaveChangesAsync();
             return NoContent();
         }
 

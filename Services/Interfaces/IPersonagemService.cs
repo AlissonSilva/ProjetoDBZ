@@ -13,7 +13,7 @@ namespace ProjetoDBZ.Services.Interfaces
 
         Task<PersonagemResponseDto> UpdateAsync(int id, PersonagemDto dto);
 
-        Task<PersonagemResponseDto> PatchAsync(int id, PersonagemDto dto);
+        Task<PersonagemResponseDto> PatchAsync(int id, PersonagemDtoPatch dto);
 
         Task<bool> UpdateImageAsync(int id, IFormFile imagem);
 

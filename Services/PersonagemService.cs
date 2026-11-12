@@ -130,7 +130,7 @@ namespace ProjetoDBZ.Services
                 .FirstOrDefaultAsync();
         }
 
-        public Task<PersonagemResponseDto> PatchAsync(int id, PersonagemDto dto)
+        public Task<PersonagemResponseDto> PatchAsync(int id, PersonagemDtoPatch dto)
         {
             var personagem = _context.Personagens.Find(id);
             if (personagem == null)
@@ -154,8 +154,15 @@ namespace ProjetoDBZ.Services
                 }
                 personagem.Tipo = tipo;
             }
-            personagem.Publicar = dto.Publicar;
-            personagem.Ativo = dto.Ativo;
+            if (dto.Publicar != personagem.Publicar)
+            {
+                personagem.Publicar = dto.Publicar;
+            }
+            if (dto.Ativo != personagem.Ativo)
+            {
+                personagem.Ativo = dto.Ativo;
+            }
+
             _context.SaveChanges();
             return Task.FromResult(new PersonagemResponseDto
             {
