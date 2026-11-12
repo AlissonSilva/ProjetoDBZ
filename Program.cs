@@ -10,6 +10,8 @@ using ProjetoDBZ.Models.User;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using ProjetoDBZ.Middleware;
 using Serilog;
+using ProjetoDBZ.Services.Interfaces;
+using ProjetoDBZ.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -90,6 +92,8 @@ builder.Services.AddAuthorization(options =>
             .RequireAuthenticatedUser()
             .Build();
 });
+
+builder.Services.AddScoped<IPersonagemService, PersonagemService>();
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
