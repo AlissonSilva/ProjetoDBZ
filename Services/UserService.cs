@@ -101,7 +101,16 @@ namespace ProjetoDBZ.Services
             return Task.FromResult<IActionResult>(new OkObjectResult(new
             {
                 message = "Login bem-sucedido.",
-                accessToken = $"Bearer {accessToken}"
+                accessToken = $"Bearer {accessToken}",
+                expiresAt = expiresAt,
+                user = new
+                {
+                    id = user.Id,
+                    name = user.Name,
+                    username = user.Username,
+                    email = user.Email,
+                    role = user.Roles.Name
+                }
             }));
         }
 
@@ -139,6 +148,7 @@ namespace ProjetoDBZ.Services
 
             var user = new User
             {
+                Name = request.Name.Trim(),
                 Username = username,
                 Email = email,
                 RolesId = role.Id,

@@ -1,16 +1,7 @@
 
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using ProjetoDBZ.Data;
 using ProjetoDBZ.DTO.User;
-using ProjetoDBZ.Models.User;
 using ProjetoDBZ.Services.Interfaces;
 
 namespace ProjetoDBZ.Controllers
