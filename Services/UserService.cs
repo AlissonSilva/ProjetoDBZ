@@ -5,6 +5,10 @@ using ProjetoDBZ.Data;
 using Microsoft.AspNetCore.Identity;
 using ProjetoDBZ.Models.User;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 
 namespace ProjetoDBZ.Services
@@ -13,11 +17,15 @@ namespace ProjetoDBZ.Services
     {
         private readonly AppDbContext _dbContext;
         private readonly IPasswordHasher<User> _passwordHasher;
+        private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _environment;
 
-        public UserService( AppDbContext dbContext, IPasswordHasher<User> passwordHasher)
+        public UserService( AppDbContext dbContext, IPasswordHasher<User> passwordHasher, IConfiguration configuration, IWebHostEnvironment environment)
         {
             _dbContext = dbContext;
             _passwordHasher = passwordHasher;
+            _configuration = configuration;
+            _environment = environment;
         }
 
         public Task<IActionResult> Login([FromBody] LoginRequestDto request)
@@ -49,9 +57,51 @@ namespace ProjetoDBZ.Services
                 }));
             }
 
+            if(result == PasswordVerificationResult.SuccessRehashNeeded)
+            {
+                user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
+                _dbContext.SaveChanges();
+            }
+
+            var jwtKey = _configuration["Jwt:Key"]?? throw new InvalidOperationException("JWT key is not configured.");
+
+            var issuer = _configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("JWT issuer is not configured.");
+
+            var audience = _configuration["Jwt:Audience"] ?? throw new InvalidOperationException("JWT audience is not configured.");
+
+            var expirationMinutes = _configuration.GetValue<int>("Jwt:ExpirationMinutes", 15);
+
+            if (expirationMinutes <= 0)
+            {
+                throw new InvalidOperationException("JWT expiration time must be greater than zero.");
+            }
+
+            var expiresAt = DateTime.UtcNow.AddMinutes(expirationMinutes);
+
+            var claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.UniqueName, user.Username),
+                new Claim(ClaimTypes.Role, user.Roles.Name)
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: issuer,
+                audience: audience,
+                claims: claims,
+                expires: expiresAt,
+                signingCredentials: credentials
+            );
+
+            var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
+            
             return Task.FromResult<IActionResult>(new OkObjectResult(new
             {
-                message = "Login bem-sucedido."
+                message = "Login bem-sucedido.",
+                accessToken = $"Bearer {accessToken}"
             }));
         }
 
@@ -76,11 +126,22 @@ namespace ProjetoDBZ.Services
                     message = "Nome de usuário ou e-mail já está em uso."
                 }));
             }
+            
+            var role = _dbContext.Roles.SingleOrDefaultAsync(r => r.Name == "User");
+
+            if (role is null)
+            {
+                return Task.FromResult<IActionResult>(new BadRequestObjectResult(new
+                {
+                    message = "Perfil padrão não configurado."
+                }));
+            }
 
             var user = new User
             {
                 Username = username,
                 Email = email,
+                RolesId = role.Id,
                 IsActive = true
             };
 

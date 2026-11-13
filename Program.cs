@@ -94,6 +94,7 @@ builder.Services.AddAuthorization(options =>
 });
 
 builder.Services.AddScoped<IPersonagemService, PersonagemService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
