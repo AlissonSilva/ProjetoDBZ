@@ -1,6 +1,6 @@
 using ProjetoDBZ.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Identity.Data;
+using ProjetoDBZ.DTO.User;
 using ProjetoDBZ.Data;
 using Microsoft.AspNetCore.Identity;
 using ProjetoDBZ.Models.User;
@@ -11,21 +11,16 @@ namespace ProjetoDBZ.Services
 {
     public class UserService : IUserService
     {
-
-        private readonly IConfiguration _configuration;
-        private readonly IWebHostEnvironment _environment;
         private readonly AppDbContext _dbContext;
         private readonly IPasswordHasher<User> _passwordHasher;
 
-        public UserService(IConfiguration configuration, IWebHostEnvironment environment, AppDbContext dbContext, IPasswordHasher<User> passwordHasher)
+        public UserService( AppDbContext dbContext, IPasswordHasher<User> passwordHasher)
         {
-            _configuration = configuration;
-            _environment = environment;
             _dbContext = dbContext;
             _passwordHasher = passwordHasher;
         }
 
-        public Task<IActionResult> Login([FromBody] LoginRequestService request)
+        public Task<IActionResult> Login([FromBody] LoginRequestDto request)
         {
             var username = request.Username.Trim();
 
@@ -60,7 +55,7 @@ namespace ProjetoDBZ.Services
             }));
         }
 
-        public Task<IActionResult> Register([FromBody] RegisterRequestService request)
+        public Task<IActionResult> Register([FromBody] RegisterRequestDto request)
         {
             if (request.Password.Length < 12)
             {
