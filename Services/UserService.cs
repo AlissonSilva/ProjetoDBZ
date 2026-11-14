@@ -20,7 +20,7 @@ namespace ProjetoDBZ.Services
         private readonly IConfiguration _configuration;
         private readonly IWebHostEnvironment _environment;
 
-        public UserService( AppDbContext dbContext, IPasswordHasher<User> passwordHasher, IConfiguration configuration, IWebHostEnvironment environment)
+        public UserService(AppDbContext dbContext, IPasswordHasher<User> passwordHasher, IConfiguration configuration, IWebHostEnvironment environment)
         {
             _dbContext = dbContext;
             _passwordHasher = passwordHasher;
@@ -57,13 +57,13 @@ namespace ProjetoDBZ.Services
                 }));
             }
 
-            if(result == PasswordVerificationResult.SuccessRehashNeeded)
+            if (result == PasswordVerificationResult.SuccessRehashNeeded)
             {
                 user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
                 _dbContext.SaveChanges();
             }
 
-            var jwtKey = _configuration["Jwt:Key"]?? throw new InvalidOperationException("JWT key is not configured.");
+            var jwtKey = _configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT key is not configured.");
 
             var issuer = _configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("JWT issuer is not configured.");
 
@@ -97,7 +97,7 @@ namespace ProjetoDBZ.Services
             );
 
             var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
-            
+
             return Task.FromResult<IActionResult>(new OkObjectResult(new
             {
                 message = "Login bem-sucedido.",
@@ -109,7 +109,9 @@ namespace ProjetoDBZ.Services
                     name = user.Name,
                     username = user.Username,
                     email = user.Email,
-                    role = user.Roles.Name
+                    role = user.Roles.Name,
+                    isActive = user.IsActive,
+                    Imagem = user.Imagem != null && user.Imagem.Length > 0 ? Convert.ToBase64String(user.Imagem) : null
                 }
             }));
         }
@@ -135,7 +137,7 @@ namespace ProjetoDBZ.Services
                     message = "Nome de usuário ou e-mail já está em uso."
                 }));
             }
-            
+
             var role = _dbContext.Roles.SingleOrDefaultAsync(r => r.Name == "User");
 
             if (role is null)

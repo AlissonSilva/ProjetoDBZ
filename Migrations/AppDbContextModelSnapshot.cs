@@ -143,6 +143,9 @@ namespace ProjetoDBZ.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(255)");
 
+                    b.Property<byte[]>("Imagem")
+                        .HasColumnType("longblob");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("tinyint(1)");
 
