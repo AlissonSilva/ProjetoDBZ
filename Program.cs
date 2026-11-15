@@ -8,6 +8,10 @@ using ProjetoDBZ.Data;
 using Microsoft.AspNetCore.Identity;
 using ProjetoDBZ.Models.User;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using ProjetoDBZ.Middleware;
+using Serilog;
+using ProjetoDBZ.Services.Interfaces;
+using ProjetoDBZ.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,8 +41,6 @@ builder.Services.AddSwaggerGen(c =>
         BearerFormat = "JWT",
         Scheme = "Bearer"
     });
-
-    //c.DocumentFilter<HideSchemasDocumentFilter>();
 
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
@@ -91,9 +93,32 @@ builder.Services.AddAuthorization(options =>
             .Build();
 });
 
+builder.Services.AddScoped<IPersonagemService, PersonagemService>();
+builder.Services.AddScoped<IUserService, UserService>();
+
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
+builder.Host.UseSerilog((context, services, loggerConfiguration) =>
+{
+    loggerConfiguration
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext()
+        .WriteTo.Console()
+        .WriteTo.File(
+            "Logs/log-.txt",
+            rollingInterval: RollingInterval.Day,
+            retainedFileCountLimit: 14
+        );
+});
+
 var app = builder.Build();
+
+app.UseMiddleware<CorrelationIdMiddleware>();
+app.UseExceptionHandler();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -107,6 +132,7 @@ if (app.Environment.IsDevelopment())
         }
     );
 }
+app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 

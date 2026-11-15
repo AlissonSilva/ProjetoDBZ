@@ -5,23 +5,16 @@
 namespace ProjetoDBZ.Migrations
 {
     /// <inheritdoc />
-    public partial class ImgDescripts : Migration
+    public partial class addFieldImagemProfile : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<byte[]>(
                 name: "Imagem",
-                table: "Personagens",
+                table: "Users",
                 type: "longblob",
                 nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "descricao",
-                table: "Personagens",
-                type: "longtext",
-                nullable: true)
-                .Annotation("MySql:CharSet", "utf8mb4");
         }
 
         /// <inheritdoc />
@@ -29,11 +22,7 @@ namespace ProjetoDBZ.Migrations
         {
             migrationBuilder.DropColumn(
                 name: "Imagem",
-                table: "Personagens");
-
-            migrationBuilder.DropColumn(
-                name: "descricao",
-                table: "Personagens");
+                table: "Users");
         }
     }
 }

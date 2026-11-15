@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ProjetoDBZ.Models.User
 {
@@ -21,6 +17,7 @@ namespace ProjetoDBZ.Models.User
         public int RolesId { get; set; }
         public Role Roles { get; set; }
         public bool IsActive { get; set; } = true;
+        public byte[] Imagem { get; set; } = Array.Empty<byte>();
 
     }
 }
