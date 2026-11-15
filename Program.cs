@@ -7,7 +7,6 @@ using Microsoft.OpenApi.Models;
 using ProjetoDBZ.Data;
 using Microsoft.AspNetCore.Identity;
 using ProjetoDBZ.Models.User;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using ProjetoDBZ.Middleware;
 using Serilog;
 using ProjetoDBZ.Services.Interfaces;
@@ -95,7 +94,7 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddScoped<IPersonagemService, PersonagemService>();
 builder.Services.AddScoped<IUserService, UserService>();
-
+builder.Services.AddScoped<IFavoritoService, FavoritoService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();

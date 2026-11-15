@@ -1,10 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
-using ProjetoDBZ.Data;
-using ProjetoDBZ.Models;
+using ProjetoDBZ.DTO.Favoritos;
+using ProjetoDBZ.Services.Interfaces;
 
 namespace ProjetoDBZ.Controllers
 {
@@ -12,33 +9,32 @@ namespace ProjetoDBZ.Controllers
     [Route("api/[controller]")]
     public class FavoritosController : ControllerBase
     {
-        private readonly AppDbContext _appDbContext;
 
-        public FavoritosController(AppDbContext context)
+        private readonly IFavoritoService _favoritoService;
+
+        public FavoritosController(IFavoritoService favoritoService)
         {
-            _appDbContext = context;
+            _favoritoService = favoritoService;
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddFavorito(Favorito favorito)
+        public async Task<IActionResult> AddFavorito(FavoritoDto favorito)
         {
-            _appDbContext.Favoritos.Add(favorito);
-            await _appDbContext.SaveChangesAsync();
-            return Ok(favorito);
+
+            var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (usuarioId == null)
+                return Unauthorized();
+
+            var result = await _favoritoService.AddFavorito(int.Parse(usuarioId), favorito);
+            return result;
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> RemoveFavorito(int id)
         {
-            var favorito = await _appDbContext.Favoritos.FindAsync(id);
-            if (favorito == null)
-            {
-                return NotFound();
-            }
-
-            _appDbContext.Favoritos.Remove(favorito);
-            await _appDbContext.SaveChangesAsync();
-            return Ok(favorito);
+            var result = await _favoritoService.RemoveFavorito(id);
+            return result;
         }
     }
 }
