@@ -14,5 +14,7 @@ namespace ProjetoDBZ.DTO.Personagens
         public int TipoId { get; set; }
         public bool Publicar { get; set; }
         public bool Ativo { get; set; }
+        public byte[] Imagem { get; set; } = null;
+        public DateTime DataAtualizacao { get; set; } = DateTime.Now;
     }
 }

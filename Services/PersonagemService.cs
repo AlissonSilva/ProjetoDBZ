@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using ProjetoDBZ.Data;
 using ProjetoDBZ.DTO.Common;
@@ -19,12 +15,17 @@ namespace ProjetoDBZ.Services
         {
             _context = context;
         }
-        public Task<PersonagemResponseDto> AddAsync(PersonagemDto dto)
+        public Task<PersonagemResponseDto> AddAsync(PersonagemDto dto, int usuarioId)
         {
             var tipo = _context.Tipos.FirstOrDefault(t => t.Id == dto.TipoId);
+            var usuario = _context.Users.FirstOrDefault(u => u.Id == usuarioId);
             if (tipo == null)
             {
                 throw new ArgumentException("Tipo inválido.");
+            }
+            if (usuario == null)
+            {
+                throw new ArgumentException("Usuário inválido.");
             }
 
             var personagem = new Personagem
@@ -33,7 +34,11 @@ namespace ProjetoDBZ.Services
                 Descricao = dto.Descricao,
                 Tipo = tipo,
                 Publicar = dto.Publicar,
-                Ativo = dto.Ativo
+                Ativo = dto.Ativo,
+                Imagem = dto.Imagem,
+                DataCriacao = dto.DataCriacao,
+                DataAtualizacao = dto.DataAtualizacao,
+                Usuario = usuario
             };
 
             _context.Personagens.Add(personagem);
@@ -44,9 +49,14 @@ namespace ProjetoDBZ.Services
                 Nome = personagem.Nome,
                 Descricao = personagem.Descricao,
                 TipoId = personagem.Tipo.Id,
-                tipo = personagem.Tipo,
+                Tipo = personagem.Tipo,
                 Publicar = personagem.Publicar,
-                Ativo = personagem.Ativo
+                Ativo = personagem.Ativo,
+                PossuiImagem = personagem.Imagem != null && personagem.Imagem.Length > 0,
+                DataCriacao = personagem.DataCriacao,
+                DataAtualizacao = personagem.DataAtualizacao,
+                UsuarioId = personagem.UsuarioId,
+                Usuario = personagem.Usuario
             });
 
         }
@@ -95,7 +105,11 @@ namespace ProjetoDBZ.Services
                                 Publicar = p.Publicar,
                                 Ativo = p.Ativo,
                                 TipoId = p.TipoId,
-                                tipo = p.Tipo,
+                                Tipo = p.Tipo,
+                                DataCriacao = p.DataCriacao,
+                                DataAtualizacao = p.DataAtualizacao,
+                                UsuarioId = p.UsuarioId,
+                                Usuario = p.Usuario
                             })
                             .ToListAsync();
 
@@ -125,7 +139,11 @@ namespace ProjetoDBZ.Services
                     Publicar = p.Publicar,
                     Ativo = p.Ativo,
                     TipoId = p.TipoId,
-                    tipo = p.Tipo,
+                    Tipo = p.Tipo,
+                    DataCriacao = p.DataCriacao,
+                    DataAtualizacao = p.DataAtualizacao,
+                    UsuarioId = p.UsuarioId,
+                    Usuario = p.Usuario
                 })
                 .FirstOrDefaultAsync();
         }
@@ -173,7 +191,11 @@ namespace ProjetoDBZ.Services
                 Publicar = personagem.Publicar,
                 Ativo = personagem.Ativo,
                 TipoId = personagem.TipoId,
-                tipo = personagem.Tipo,
+                Tipo = personagem.Tipo,
+                DataCriacao = personagem.DataCriacao,
+                DataAtualizacao = personagem.DataAtualizacao,
+                UsuarioId = personagem.UsuarioId,
+                Usuario = personagem.Usuario
             });
         }
 
@@ -196,6 +218,9 @@ namespace ProjetoDBZ.Services
             personagem.Tipo = tipo;
             personagem.Publicar = dto.Publicar;
             personagem.Ativo = dto.Ativo;
+            personagem.Imagem = dto.Imagem;
+            personagem.DataAtualizacao = DateTime.Now;
+
 
             _context.SaveChanges();
 
@@ -208,7 +233,11 @@ namespace ProjetoDBZ.Services
                 Publicar = personagem.Publicar,
                 Ativo = personagem.Ativo,
                 TipoId = personagem.TipoId,
-                tipo = personagem.Tipo,
+                Tipo = personagem.Tipo,
+                DataCriacao = personagem.DataCriacao,
+                DataAtualizacao = personagem.DataAtualizacao,
+                UsuarioId = personagem.UsuarioId,
+                Usuario = personagem.Usuario
             });
         }
 

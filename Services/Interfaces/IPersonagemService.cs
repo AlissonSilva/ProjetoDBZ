@@ -5,7 +5,7 @@ namespace ProjetoDBZ.Services.Interfaces
 {
     public interface IPersonagemService
     {
-        Task<PersonagemResponseDto> AddAsync(PersonagemDto dto);
+        Task<PersonagemResponseDto> AddAsync(PersonagemDto dto, int usuarioId);
 
         Task<PagedResponseDto<PersonagemResponseDto>> GetAllAsync(int page, int pageSize, string nome, int tipoId);
 

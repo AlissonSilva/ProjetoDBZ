@@ -1,10 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using ProjetoDBZ.Data;
-using ProjetoDBZ.DTO.Common;
+using System.Security.Claims;
 using ProjetoDBZ.DTO.Personagens;
-using ProjetoDBZ.Models;
 using ProjetoDBZ.Services.Interfaces;
 
 namespace ProjetoDBZ.Controllers
@@ -29,13 +26,19 @@ namespace ProjetoDBZ.Controllers
                 return BadRequest(ModelState);
             }
 
+            var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (usuarioId == null)
+                return Unauthorized();
+
+
             var tipo = await _appDbContext.Tipos.FindAsync(dto.TipoId);
             if (tipo == null)
             {
                 return BadRequest("Tipo inválido.");
             }
 
-            var personagem = await _personagemService.AddAsync(dto);
+            var personagem = await _personagemService.AddAsync(dto, int.Parse(usuarioId));
 
             return Ok(personagem);
         }
