@@ -5,10 +5,10 @@ namespace ProjetoDBZ.Services.Interfaces
 {
     public interface ITipoService
     {
-        Task<IActionResult> AddTipo(CreateTipoDto dto);
-        Task<IActionResult> GetTipos();
-        Task<IActionResult> GetTipoById(int id);
-        Task<IActionResult> UpdateTipo(int id, CreateTipoDto dto);
+        Task<TipoResponseDto> AddTipo(CreateTipoDto dto, int usuarioId);
+        Task<TipoResponseDto> GetTipos();
+        Task<TipoResponseDto> GetTipoById(int id);
+        Task<TipoResponseDto> UpdateTipo(int id, PatchTipoDto dto);
         Task<IActionResult> DeleteTipo(int id);
     }
 }

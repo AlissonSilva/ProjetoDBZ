@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjetoDBZ.Data;
@@ -13,7 +9,7 @@ namespace ProjetoDBZ.Services
 {
     public class TipoService : ITipoService
     {
-        
+
         private readonly AppDbContext _appDbContext;
 
         public TipoService(AppDbContext appDbContext)
@@ -21,18 +17,117 @@ namespace ProjetoDBZ.Services
             _appDbContext = appDbContext;
         }
 
-        public Task<IActionResult> AddTipo(CreateTipoDto dto)
+        public async Task<TipoResponseDto> AddTipo(CreateTipoDto dto, int usuarioId)
         {
+            var usuario = _appDbContext.Users.FirstOrDefault(u => u.Id == usuarioId);
+
+            if (usuario == null)
+                throw new ArgumentException("Usuário inválido.");
+
             Tipo tipo = new Tipo
             {
                 Nome = dto.Nome,
                 Ativo = dto.Ativo,
-                Publicar = dto.Publicar
+                Publicar = dto.Publicar,
+                UsuarioId = usuarioId,
+                DataCriacao = DateTime.UtcNow,
+                DataAtualizacao = DateTime.UtcNow
             };
 
             _appDbContext.Tipos.Add(tipo);
             _appDbContext.SaveChanges();
-            return Task.FromResult<IActionResult>(new OkObjectResult(tipo));
+
+            return new TipoResponseDto
+            {
+                Id = tipo.Id,
+                Nome = tipo.Nome,
+                Ativo = tipo.Ativo ?? false,
+                Publicar = tipo.Publicar ?? false,
+                UsuarioId = tipo.UsuarioId,
+                Usuario = tipo.Usuario,
+                DataCriacao = tipo.DataCriacao,
+                DataAtualizacao = tipo.DataAtualizacao
+            };
+        }
+
+        public async Task<TipoResponseDto> GetTipoById(int id)
+        {
+            Tipo tipo = await _appDbContext.Tipos.FindAsync(id);
+            if (tipo == null)
+            {
+                return null;
+            }
+
+            return new TipoResponseDto
+            {
+                Id = tipo.Id,
+                Nome = tipo.Nome,
+                Ativo = tipo.Ativo ?? false,
+                Publicar = tipo.Publicar ?? false,
+                UsuarioId = tipo.UsuarioId,
+                Usuario = tipo.Usuario,
+                DataCriacao = tipo.DataCriacao,
+                DataAtualizacao = tipo.DataAtualizacao
+            };
+        }
+
+        public async Task<TipoResponseDto> GetTipos()
+        {
+            var tipo = await _appDbContext.Tipos
+                .AsNoTracking()
+                .Select(t => new TipoResponseDto
+                {
+                    Id = t.Id,
+                    Nome = t.Nome,
+                    Ativo = t.Ativo ?? false,
+                    Publicar = t.Publicar ?? false,
+                    UsuarioId = t.UsuarioId,
+                    Usuario = t.Usuario,
+                    DataCriacao = t.DataCriacao,
+                    DataAtualizacao = t.DataAtualizacao
+                })
+                .FirstOrDefaultAsync();
+
+            return tipo;
+        }
+
+        public async Task<TipoResponseDto> UpdateTipo(int id, PatchTipoDto dto)
+        {
+            Tipo tipo = await _appDbContext.Tipos.FindAsync(id);
+            if (tipo == null)
+            {
+                return null;
+            }
+
+            if (dto.Nome != null)
+            {
+                tipo.Nome = dto.Nome;
+            }
+            if (dto.Ativo != null)
+            {
+                tipo.Ativo = dto.Ativo;
+            }
+            if (dto.Publicar != null)
+            {
+                tipo.Publicar = dto.Publicar;
+            }
+
+            tipo.DataAtualizacao = DateTime.UtcNow;
+
+            _appDbContext.Tipos.Update(tipo);
+            await _appDbContext.SaveChangesAsync();
+
+            return new TipoResponseDto
+            {
+                Id = tipo.Id,
+                Nome = tipo.Nome,
+                Ativo = tipo.Ativo ?? false,
+                Publicar = tipo.Publicar ?? false,
+                UsuarioId = tipo.UsuarioId,
+                Usuario = tipo.Usuario,
+                DataCriacao = tipo.DataCriacao,
+                DataAtualizacao = tipo.DataAtualizacao
+            };
         }
 
         public Task<IActionResult> DeleteTipo(int id)
@@ -46,46 +141,6 @@ namespace ProjetoDBZ.Services
             _appDbContext.Tipos.Remove(tipo);
             _appDbContext.SaveChanges();
             return Task.FromResult<IActionResult>(new NoContentResult());
-        }
-
-        public Task<IActionResult> GetTipoById(int id)
-        {
-            Tipo tipo = _appDbContext.Tipos.Find(id);
-            if (tipo == null)
-            {
-                return Task.FromResult<IActionResult>(new NotFoundResult());
-            }
-            return Task.FromResult<IActionResult>(new OkObjectResult(tipo));
-        }
-
-        public Task<IActionResult> GetTipos()
-        {
-            Task<List<Tipo>> tipos = _appDbContext.Tipos.ToListAsync();
-            return Task.FromResult<IActionResult>(new OkObjectResult(tipos));
-        }
-
-        public Task<IActionResult> UpdateTipo(int id, CreateTipoDto dto)
-        {
-            
-            Tipo tipo = _appDbContext.Tipos.FindAsync(id).Result;
-            if (tipo == null)
-            {
-                return Task.FromResult<IActionResult>(new NotFoundResult());
-            }
-            if(dto.Nome != null)
-            {
-                tipo.Nome = dto.Nome;
-            }else if(dto.Ativo != null)
-            {
-                tipo.Ativo = dto.Ativo;
-            }else if(dto.Publicar != null)
-            {
-                tipo.Publicar = dto.Publicar;
-            }
-
-            _appDbContext.Tipos.Update(tipo);
-            _appDbContext.SaveChanges();
-            return Task.FromResult<IActionResult>(new OkObjectResult(tipo));
         }
     }
 }

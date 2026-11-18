@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using UserModel = ProjetoDBZ.Models.User.User;
 
 namespace ProjetoDBZ.DTO.Tipos
 {
@@ -11,6 +8,10 @@ namespace ProjetoDBZ.DTO.Tipos
         public string Nome { get; set; } = string.Empty;
         public bool Ativo { get; set; }
         public bool Publicar { get; set; }
-        
+        public int UsuarioId { get; set; }
+        public UserModel Usuario { get; set; }
+        public DateTime DataCriacao { get; set; }
+        public DateTime DataAtualizacao { get; set; }
+
     }
 }

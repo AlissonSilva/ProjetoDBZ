@@ -1,12 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ProjetoDBZ.Data;
 using ProjetoDBZ.DTO.Tipos;
-using ProjetoDBZ.Models;
 using ProjetoDBZ.Services.Interfaces;
 
 namespace ProjetoDBZ.Controllers
@@ -25,25 +19,34 @@ namespace ProjetoDBZ.Controllers
         [HttpPost]
         public async Task<IActionResult> AddTipo(CreateTipoDto dto)
         {
-            return await _tipoService.AddTipo(dto);
+            var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (usuarioId == null)
+                return Unauthorized();
+
+            var tipo = await _tipoService.AddTipo(dto, int.Parse(usuarioId));
+            return Ok(tipo);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetTipos()
         {
-            return await _tipoService.GetTipos();
+            var tipos = await _tipoService.GetTipos();
+            return Ok(tipos);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetTipoById(int id)
         {
-            return await _tipoService.GetTipoById(id);
+            var tipo = await _tipoService.GetTipoById(id);
+            return Ok(tipo);
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> UpdateTipo(int id, CreateTipoDto dto)
+        public async Task<IActionResult> UpdateTipo(int id, PatchTipoDto dto)
         {
-            return await _tipoService.UpdateTipo(id, dto);
+            var result = await _tipoService.UpdateTipo(id, dto);
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
