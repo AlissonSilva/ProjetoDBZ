@@ -30,6 +30,9 @@ namespace ProjetoDBZ.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("DataCriacao")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<int>("PersonagemId")
                         .HasColumnType("int");
 
@@ -161,6 +164,12 @@ namespace ProjetoDBZ.Migrations
                         .HasColumnType("int");
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DataAtualizacao")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("DataCriacao")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Email")
                         .IsRequired()
