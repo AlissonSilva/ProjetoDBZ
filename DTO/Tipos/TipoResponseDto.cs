@@ -1,4 +1,4 @@
-using UserModel = ProjetoDBZ.Models.User.User;
+using ProjetoDBZ.DTO.User;
 
 namespace ProjetoDBZ.DTO.Tipos
 {
@@ -9,7 +9,7 @@ namespace ProjetoDBZ.DTO.Tipos
         public bool Ativo { get; set; }
         public bool Publicar { get; set; }
         public int UsuarioId { get; set; }
-        public UserModel Usuario { get; set; }
+        public UsuarioResponseDto Usuario { get; set; }
         public DateTime DataCriacao { get; set; }
         public DateTime DataAtualizacao { get; set; }
 

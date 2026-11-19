@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjetoDBZ.Data;
 using ProjetoDBZ.DTO.Tipos;
+using ProjetoDBZ.DTO.User;
 using ProjetoDBZ.Models;
 using ProjetoDBZ.Services.Interfaces;
 
@@ -44,7 +45,15 @@ namespace ProjetoDBZ.Services
                 Ativo = tipo.Ativo ?? false,
                 Publicar = tipo.Publicar ?? false,
                 UsuarioId = tipo.UsuarioId,
-                Usuario = tipo.Usuario,
+                Usuario = new UsuarioResponseDto
+                {
+                    Id = usuario.Id,
+                    Name = usuario.Name,
+                    Username = usuario.Username,
+                    IsActive = usuario.IsActive,
+                    DataCriacao = usuario.DataCriacao,
+                    Imagem = usuario.Imagem
+                },
                 DataCriacao = tipo.DataCriacao,
                 DataAtualizacao = tipo.DataAtualizacao
             };
@@ -52,7 +61,7 @@ namespace ProjetoDBZ.Services
 
         public async Task<TipoResponseDto> GetTipoById(int id)
         {
-            Tipo tipo = await _appDbContext.Tipos.FindAsync(id);
+            Tipo tipo = await _appDbContext.Tipos.AsNoTracking().Where(p => p.Id == id).FirstOrDefaultAsync();
             if (tipo == null)
             {
                 return null;
@@ -65,13 +74,21 @@ namespace ProjetoDBZ.Services
                 Ativo = tipo.Ativo ?? false,
                 Publicar = tipo.Publicar ?? false,
                 UsuarioId = tipo.UsuarioId,
-                Usuario = tipo.Usuario,
+                Usuario = new UsuarioResponseDto
+                {
+                    Id = tipo.UsuarioId,
+                    Name = tipo.Usuario.Name,
+                    Username = tipo.Usuario.Username,
+                    IsActive = tipo.Usuario.IsActive,
+                    DataCriacao = tipo.Usuario.DataCriacao,
+                    Imagem = tipo.Usuario.Imagem
+                },
                 DataCriacao = tipo.DataCriacao,
                 DataAtualizacao = tipo.DataAtualizacao
             };
         }
 
-        public async Task<TipoResponseDto> GetTipos()
+        public async Task<List<TipoResponseDto>> GetTipos()
         {
             var tipo = await _appDbContext.Tipos
                 .AsNoTracking()
@@ -82,11 +99,18 @@ namespace ProjetoDBZ.Services
                     Ativo = t.Ativo ?? false,
                     Publicar = t.Publicar ?? false,
                     UsuarioId = t.UsuarioId,
-                    Usuario = t.Usuario,
+                    Usuario = new UsuarioResponseDto
+                    {
+                        Id = t.UsuarioId,
+                        Name = t.Usuario.Name,
+                        Username = t.Usuario.Username,
+                        IsActive = t.Usuario.IsActive,
+                        DataCriacao = t.Usuario.DataCriacao,
+                        Imagem = t.Usuario.Imagem
+                    },
                     DataCriacao = t.DataCriacao,
                     DataAtualizacao = t.DataAtualizacao
-                })
-                .FirstOrDefaultAsync();
+                }).ToListAsync();
 
             return tipo;
         }
@@ -124,7 +148,15 @@ namespace ProjetoDBZ.Services
                 Ativo = tipo.Ativo ?? false,
                 Publicar = tipo.Publicar ?? false,
                 UsuarioId = tipo.UsuarioId,
-                Usuario = tipo.Usuario,
+                Usuario = new UsuarioResponseDto
+                {
+                    Id = tipo.UsuarioId,
+                    Name = tipo.Usuario.Name,
+                    Username = tipo.Usuario.Username,
+                    IsActive = tipo.Usuario.IsActive,
+                    DataCriacao = tipo.Usuario.DataCriacao,
+                    Imagem = tipo.Usuario.Imagem
+                },
                 DataCriacao = tipo.DataCriacao,
                 DataAtualizacao = tipo.DataAtualizacao
             };

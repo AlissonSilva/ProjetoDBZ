@@ -6,7 +6,7 @@ namespace ProjetoDBZ.Services.Interfaces
     public interface ITipoService
     {
         Task<TipoResponseDto> AddTipo(CreateTipoDto dto, int usuarioId);
-        Task<TipoResponseDto> GetTipos();
+        Task<List<TipoResponseDto>> GetTipos();
         Task<TipoResponseDto> GetTipoById(int id);
         Task<TipoResponseDto> UpdateTipo(int id, PatchTipoDto dto);
         Task<IActionResult> DeleteTipo(int id);
