@@ -61,31 +61,30 @@ namespace ProjetoDBZ.Services
 
         public async Task<TipoResponseDto> GetTipoById(int id)
         {
-            Tipo tipo = await _appDbContext.Tipos.AsNoTracking().Where(p => p.Id == id).FirstOrDefaultAsync();
-            if (tipo == null)
-            {
-                return null;
-            }
-
-            return new TipoResponseDto
-            {
-                Id = tipo.Id,
-                Nome = tipo.Nome,
-                Ativo = tipo.Ativo ?? false,
-                Publicar = tipo.Publicar ?? false,
-                UsuarioId = tipo.UsuarioId,
-                Usuario = new UsuarioResponseDto
+            return await _appDbContext.Tipos
+                .AsNoTracking()
+                .Where(t => t.Id == id)
+                .Select(t => new TipoResponseDto
                 {
-                    Id = tipo.UsuarioId,
-                    Name = tipo.Usuario.Name,
-                    Username = tipo.Usuario.Username,
-                    IsActive = tipo.Usuario.IsActive,
-                    DataCriacao = tipo.Usuario.DataCriacao,
-                    Imagem = tipo.Usuario.Imagem
-                },
-                DataCriacao = tipo.DataCriacao,
-                DataAtualizacao = tipo.DataAtualizacao
-            };
+                    Id = t.Id,
+                    Nome = t.Nome,
+                    Ativo = t.Ativo ?? false,
+                    Publicar = t.Publicar ?? false,
+                    UsuarioId = t.UsuarioId,
+
+                    Usuario = new UsuarioResponseDto
+                    {
+                        Id = t.Usuario.Id,
+                        Name = t.Usuario.Name,
+                        Username = t.Usuario.Username,
+                        IsActive = t.Usuario.IsActive,
+                        DataCriacao = t.Usuario.DataCriacao,
+                        Imagem = t.Usuario.Imagem
+                    },
+
+                    DataCriacao = t.DataCriacao,
+                    DataAtualizacao = t.DataAtualizacao
+                }).FirstOrDefaultAsync();
         }
 
         public async Task<List<TipoResponseDto>> GetTipos()
@@ -117,28 +116,21 @@ namespace ProjetoDBZ.Services
 
         public async Task<TipoResponseDto> UpdateTipo(int id, PatchTipoDto dto)
         {
-            Tipo tipo = await _appDbContext.Tipos.FindAsync(id);
-            if (tipo == null)
-            {
-                return null;
-            }
+            var tipo = await _appDbContext.Tipos.Include(t => t.Usuario).FirstOrDefaultAsync(t => t.Id == id);
 
-            if (dto.Nome != null)
-            {
-                tipo.Nome = dto.Nome;
-            }
-            if (dto.Ativo != null)
-            {
-                tipo.Ativo = dto.Ativo;
-            }
-            if (dto.Publicar != null)
-            {
-                tipo.Publicar = dto.Publicar;
-            }
+            if (tipo == null)
+                return null;
+
+            tipo.Nome = string.IsNullOrWhiteSpace(dto.Nome) ? tipo.Nome : dto.Nome;
+
+            if (dto.Ativo.HasValue)
+                tipo.Ativo = dto.Ativo.Value;
+
+            if (dto.Publicar.HasValue)
+                tipo.Publicar = dto.Publicar.Value;
 
             tipo.DataAtualizacao = DateTime.UtcNow;
 
-            _appDbContext.Tipos.Update(tipo);
             await _appDbContext.SaveChangesAsync();
 
             return new TipoResponseDto
@@ -148,15 +140,17 @@ namespace ProjetoDBZ.Services
                 Ativo = tipo.Ativo ?? false,
                 Publicar = tipo.Publicar ?? false,
                 UsuarioId = tipo.UsuarioId,
-                Usuario = new UsuarioResponseDto
+
+                Usuario = tipo.Usuario == null ? null : new UsuarioResponseDto
                 {
-                    Id = tipo.UsuarioId,
+                    Id = tipo.Usuario.Id,
                     Name = tipo.Usuario.Name,
                     Username = tipo.Usuario.Username,
                     IsActive = tipo.Usuario.IsActive,
                     DataCriacao = tipo.Usuario.DataCriacao,
                     Imagem = tipo.Usuario.Imagem
                 },
+
                 DataCriacao = tipo.DataCriacao,
                 DataAtualizacao = tipo.DataAtualizacao
             };
