@@ -22,6 +22,39 @@ namespace ProjetoDBZ.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("ProjetoDBZ.Models.Comentario", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DataAtualizacao")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("DataCriacao")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Descricao")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<int>("PersonagemId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PersonagemId");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("Comentarios");
+                });
+
             modelBuilder.Entity("ProjetoDBZ.Models.Favorito", b =>
                 {
                     b.Property<int>("Id")
@@ -210,6 +243,25 @@ namespace ProjetoDBZ.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("ProjetoDBZ.Models.Comentario", b =>
+                {
+                    b.HasOne("ProjetoDBZ.Models.Personagem", "personagem")
+                        .WithMany()
+                        .HasForeignKey("PersonagemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjetoDBZ.Models.User.User", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Usuario");
+
+                    b.Navigation("personagem");
                 });
 
             modelBuilder.Entity("ProjetoDBZ.Models.Favorito", b =>
