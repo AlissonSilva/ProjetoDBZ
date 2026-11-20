@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ProjetoDBZ.Data;
 using ProjetoDBZ.DTO.Tipos;
-using ProjetoDBZ.Models;
+using ProjetoDBZ.Services.Interfaces;
 
 namespace ProjetoDBZ.Controllers
 {
@@ -14,86 +9,50 @@ namespace ProjetoDBZ.Controllers
     [Route("api/[controller]")]
     public class TipoController : ControllerBase
     {
-        private readonly AppDbContext _appDbContext;
+        private readonly ITipoService _tipoService;
 
-        public TipoController(AppDbContext context)
+        public TipoController(ITipoService tipoService)
         {
-            _appDbContext = context;
+            _tipoService = tipoService;
         }
 
         [HttpPost]
         public async Task<IActionResult> AddTipo(CreateTipoDto dto)
         {
-            var tipo = new Tipo
-            {
-                Nome = dto.Nome,
-                Ativo = dto.Ativo,
-                Publicar = dto.Publicar
-            };
+            var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            _appDbContext.Tipos.Add(tipo);
-            await _appDbContext.SaveChangesAsync();
+            if (usuarioId == null)
+                return Unauthorized();
+
+            var tipo = await _tipoService.AddTipo(dto, int.Parse(usuarioId));
             return Ok(tipo);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetTipos()
         {
-            var tipos = await _appDbContext.Tipos.ToListAsync();
+            var tipos = await _tipoService.GetTipos();
             return Ok(tipos);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetTipoById(int id)
         {
-            var tipo = await _appDbContext.Tipos.FindAsync(id);
-            if (tipo == null)
-            {
-                return NotFound();
-            }
+            var tipo = await _tipoService.GetTipoById(id);
             return Ok(tipo);
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> UpdateTipo(int id, CreateTipoDto dto)
+        public async Task<IActionResult> UpdateTipo(int id, PatchTipoDto dto)
         {
-            var tipo = await _appDbContext.Tipos.FindAsync(id);
-            if (tipo == null)
-            {
-                return NotFound();
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            if(dto.Nome != null)
-            {
-                tipo.Nome = dto.Nome;
-            }else if(dto.Ativo != null)
-            {
-                tipo.Ativo = dto.Ativo;
-            }else if(dto.Publicar != null)
-            {
-                tipo.Publicar = dto.Publicar;
-            }
-
-            await _appDbContext.SaveChangesAsync();
-            return Ok(tipo);
+            var result = await _tipoService.UpdateTipo(id, dto);
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTipo(int id)
         {
-            var tipo = await _appDbContext.Tipos.FindAsync(id);
-            if (tipo == null)
-            {
-                return NotFound();
-            }
-
-            _appDbContext.Tipos.Remove(tipo);
-            await _appDbContext.SaveChangesAsync();
-            return NoContent();
+            return await _tipoService.DeleteTipo(id);
         }
 
     }
