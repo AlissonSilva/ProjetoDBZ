@@ -5,6 +5,7 @@ using ProjetoDBZ.Services.Interfaces;
 
 namespace ProjetoDBZ.Controllers
 {
+    [ApiController]
     [Route("api/[controller]")]
     public class ComentarioController : Controller
     {
@@ -16,7 +17,7 @@ namespace ProjetoDBZ.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(ComentarioDto dto)
+        public async Task<IActionResult> Add([FromBody] ComentarioDto dto)
         {
             var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -27,7 +28,7 @@ namespace ProjetoDBZ.Controllers
             return Ok(comentario);
         }
 
-        [HttpGet]
+        [HttpGet("personagemId")]
         public async Task<IActionResult> Get(int personagemId)
         {
             var comentario = await _comentarioService.Get(personagemId);
@@ -50,14 +51,14 @@ namespace ProjetoDBZ.Controllers
 
         }
 
-        [HttpPatch]
-        public async Task<IActionResult> Update(PatchComentarioDto dto, int id)
+        [HttpPatch("id")]
+        public async Task<IActionResult> Update([FromBody] PatchComentarioDto dto, int id)
         {
             var result = _comentarioService.Update(dto, id);
             return Ok(result);
         }
 
-        [HttpDelete]
+        [HttpDelete("id")]
         public async Task<IActionResult> Delete(int id)
         {
             return await _comentarioService.Delete(id);
