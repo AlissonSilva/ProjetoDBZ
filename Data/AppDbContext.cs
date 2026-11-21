@@ -19,6 +19,7 @@ namespace ProjetoDBZ.Data
         public DbSet<Role> Roles { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Favorito> Favoritos { get; set; }
+        public DbSet<Comentario> Comentarios { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
