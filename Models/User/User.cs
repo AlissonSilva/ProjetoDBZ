@@ -18,6 +18,8 @@ namespace ProjetoDBZ.Models.User
         public Role Roles { get; set; }
         public bool IsActive { get; set; } = true;
         public byte[] Imagem { get; set; } = Array.Empty<byte>();
+        public DateTime DataCriacao { get; set; } = default(DateTime);
+        public DateTime DataAtualizacao { get; set; } = default(DateTime);
 
     }
 }

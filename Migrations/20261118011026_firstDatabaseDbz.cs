@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -8,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ProjetoDBZ.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class firstDatabaseDbz : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -32,23 +33,6 @@ namespace ProjetoDBZ.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Tipos",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Nome = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Ativo = table.Column<bool>(type: "tinyint(1)", nullable: true),
-                    Publicar = table.Column<bool>(type: "tinyint(1)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Tipos", x => x.Id);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -65,7 +49,8 @@ namespace ProjetoDBZ.Migrations
                     Slug = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     RolesId = table.Column<int>(type: "int", nullable: false),
-                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    Imagem = table.Column<byte[]>(type: "longblob", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -76,6 +61,32 @@ namespace ProjetoDBZ.Migrations
                         principalTable: "Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Tipos",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Nome = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Ativo = table.Column<bool>(type: "tinyint(1)", nullable: true),
+                    Publicar = table.Column<bool>(type: "tinyint(1)", nullable: true),
+                    UsuarioId = table.Column<int>(type: "int", nullable: false),
+                    DataCriacao = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    DataAtualizacao = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tipos", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Tipos_Users_UsuarioId",
+                        column: x => x.UsuarioId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -92,7 +103,10 @@ namespace ProjetoDBZ.Migrations
                     Publicar = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     Ativo = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     Imagem = table.Column<byte[]>(type: "longblob", nullable: true),
-                    TipoId = table.Column<int>(type: "int", nullable: false)
+                    TipoId = table.Column<int>(type: "int", nullable: false),
+                    DataCriacao = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    DataAtualizacao = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UsuarioId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -101,6 +115,12 @@ namespace ProjetoDBZ.Migrations
                         name: "FK_Personagens_Tipos_TipoId",
                         column: x => x.TipoId,
                         principalTable: "Tipos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Personagens_Users_UsuarioId",
+                        column: x => x.UsuarioId,
+                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
@@ -158,10 +178,20 @@ namespace ProjetoDBZ.Migrations
                 column: "TipoId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Personagens_UsuarioId",
+                table: "Personagens",
+                column: "UsuarioId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Roles_Name",
                 table: "Roles",
                 column: "Name",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tipos_UsuarioId",
+                table: "Tipos",
+                column: "UsuarioId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_Email",
@@ -191,10 +221,10 @@ namespace ProjetoDBZ.Migrations
                 name: "Personagens");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "Tipos");
 
             migrationBuilder.DropTable(
-                name: "Tipos");
+                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "Roles");

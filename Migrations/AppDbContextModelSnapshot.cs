@@ -22,6 +22,39 @@ namespace ProjetoDBZ.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("ProjetoDBZ.Models.Comentario", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DataAtualizacao")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("DataCriacao")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Descricao")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<int>("PersonagemId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PersonagemId");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("Comentarios");
+                });
+
             modelBuilder.Entity("ProjetoDBZ.Models.Favorito", b =>
                 {
                     b.Property<int>("Id")
@@ -29,6 +62,9 @@ namespace ProjetoDBZ.Migrations
                         .HasColumnType("int");
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DataCriacao")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("PersonagemId")
                         .HasColumnType("int");
@@ -100,13 +136,24 @@ namespace ProjetoDBZ.Migrations
                     b.Property<bool?>("Ativo")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<DateTime>("DataAtualizacao")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("DataCriacao")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<string>("Nome")
                         .HasColumnType("longtext");
 
                     b.Property<bool?>("Publicar")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId");
 
                     b.ToTable("Tipos");
                 });
@@ -151,6 +198,12 @@ namespace ProjetoDBZ.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("DataAtualizacao")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("DataCriacao")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("varchar(255)");
@@ -192,6 +245,25 @@ namespace ProjetoDBZ.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("ProjetoDBZ.Models.Comentario", b =>
+                {
+                    b.HasOne("ProjetoDBZ.Models.Personagem", "personagem")
+                        .WithMany()
+                        .HasForeignKey("PersonagemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjetoDBZ.Models.User.User", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Usuario");
+
+                    b.Navigation("personagem");
+                });
+
             modelBuilder.Entity("ProjetoDBZ.Models.Favorito", b =>
                 {
                     b.HasOne("ProjetoDBZ.Models.Personagem", "Personagem")
@@ -226,6 +298,17 @@ namespace ProjetoDBZ.Migrations
                         .IsRequired();
 
                     b.Navigation("Tipo");
+
+                    b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("ProjetoDBZ.Models.Tipo", b =>
+                {
+                    b.HasOne("ProjetoDBZ.Models.User.User", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Usuario");
                 });
