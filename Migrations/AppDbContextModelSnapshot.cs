@@ -55,6 +55,32 @@ namespace ProjetoDBZ.Migrations
                     b.ToTable("Comentarios");
                 });
 
+            modelBuilder.Entity("ProjetoDBZ.Models.ComentarioLike", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ComentarioId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DataCriacao")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ComentarioId");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("ComentarioLikes");
+                });
+
             modelBuilder.Entity("ProjetoDBZ.Models.Favorito", b =>
                 {
                     b.Property<int>("Id")
@@ -123,6 +149,32 @@ namespace ProjetoDBZ.Migrations
                     b.HasIndex("UsuarioId");
 
                     b.ToTable("Personagens");
+                });
+
+            modelBuilder.Entity("ProjetoDBZ.Models.PersonagemLike", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DataCriacao")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("PersonagemId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PersonagemId");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("PersonagemLikes");
                 });
 
             modelBuilder.Entity("ProjetoDBZ.Models.Tipo", b =>
@@ -264,6 +316,25 @@ namespace ProjetoDBZ.Migrations
                     b.Navigation("personagem");
                 });
 
+            modelBuilder.Entity("ProjetoDBZ.Models.ComentarioLike", b =>
+                {
+                    b.HasOne("ProjetoDBZ.Models.Comentario", "Comentario")
+                        .WithMany()
+                        .HasForeignKey("ComentarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjetoDBZ.Models.User.User", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Comentario");
+
+                    b.Navigation("Usuario");
+                });
+
             modelBuilder.Entity("ProjetoDBZ.Models.Favorito", b =>
                 {
                     b.HasOne("ProjetoDBZ.Models.Personagem", "Personagem")
@@ -298,6 +369,25 @@ namespace ProjetoDBZ.Migrations
                         .IsRequired();
 
                     b.Navigation("Tipo");
+
+                    b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("ProjetoDBZ.Models.PersonagemLike", b =>
+                {
+                    b.HasOne("ProjetoDBZ.Models.Personagem", "Personagem")
+                        .WithMany()
+                        .HasForeignKey("PersonagemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjetoDBZ.Models.User.User", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Personagem");
 
                     b.Navigation("Usuario");
                 });
