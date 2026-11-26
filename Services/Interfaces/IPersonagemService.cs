@@ -18,5 +18,8 @@ namespace ProjetoDBZ.Services.Interfaces
         Task<bool> UpdateImageAsync(int id, IFormFile imagem);
 
         Task<bool> DeleteAsync(int id);
+
+        Task<bool> LikesAsync(int id_personagem, int id_usuario);
+        Task<bool> DisLikesAsync(int id_personagem, int id_usuario);
     }
 }
