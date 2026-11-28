@@ -74,6 +74,32 @@ namespace ProjetoDBZ.Services
             return Task.FromResult(true);
         }
 
+
+        public Task<bool> LikesAsync(int id_personagem, int id_usuario)
+        {
+            PersonagemLike p = new PersonagemLike();
+
+            int query = _context.PersonagemLikes.AsNoTracking().Where(p => p.UsuarioId == id_usuario && p.PersonagemId == id_personagem).Count();
+            if (query > 0)
+                return Task.FromResult(false);
+
+            p.PersonagemId = id_personagem;
+            p.UsuarioId = id_usuario;
+            p.DataCriacao = DateTime.Now;
+
+            _context.PersonagemLikes.Add(p);
+            _context.SaveChanges();
+            return Task.FromResult(true);
+        }
+
+        public Task<bool> DisLikesAsync(int id_personagem, int id_usuario)
+        {
+            PersonagemLike pl = _context.PersonagemLikes.AsNoTracking().Where(p => p.UsuarioId == id_usuario && p.PersonagemId == id_personagem).FirstAsync().Result;
+            _context.Remove(pl);
+            _context.SaveChanges();
+            return Task.FromResult(true);
+        }
+
         public async Task<PagedResponseDto<PersonagemResponseDto>> GetAllAsync(int page, int pageSize, string nome, int tipoId)
         {
             var query = _context.Personagens

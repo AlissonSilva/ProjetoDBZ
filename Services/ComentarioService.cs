@@ -153,5 +153,29 @@ namespace ProjetoDBZ.Services
 
         }
 
+        public Task<bool> LikesAsync(int id_comentario, int id_usuario)
+        {
+            ComentarioLike cl = new ComentarioLike();
+
+            int query = _appDbContext.ComentarioLikes.AsNoTracking().Where(c => c.UsuarioId == id_comentario && c.ComentarioId == id_comentario).Count();
+            if (query > 0)
+                return Task.FromResult(false);
+
+            cl.ComentarioId = id_comentario;
+            cl.UsuarioId = id_usuario;
+            cl.DataCriacao = DateTime.Now;
+
+            _appDbContext.ComentarioLikes.Add(cl);
+            _appDbContext.SaveChanges();
+            return Task.FromResult(true);
+        }
+
+        public Task<bool> DisLikesAsync(int id_comentario, int id_usuario)
+        {
+            ComentarioLike cl = _appDbContext.ComentarioLikes.AsNoTracking().Where(c => c.ComentarioId == id_comentario && c.UsuarioId == id_comentario).FirstAsync().Result;
+            _appDbContext.Remove(cl);
+            _appDbContext.SaveChanges();
+            return Task.FromResult(true);
+        }
     }
 }

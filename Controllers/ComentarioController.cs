@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.FileProviders;
 using ProjetoDBZ.DTO.Comentarios;
 using ProjetoDBZ.Services.Interfaces;
 
@@ -63,5 +64,46 @@ namespace ProjetoDBZ.Controllers
         {
             return await _comentarioService.Delete(id);
         }
+
+        [HttpPost("{id}/likes")]
+        public async Task<IActionResult> Likes(int id)
+        {
+            var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (usuarioId == null)
+                return Unauthorized();
+
+            bool cl = await _comentarioService.LikesAsync(id, int.Parse(usuarioId));
+
+            if (cl)
+            {
+                return Ok();
+            }
+            else
+            {
+                return NoContent();
+            }
+
+        }
+
+        [HttpPost("{id}/dislikes")]
+        public async Task<IActionResult> DisLikes(int id)
+        {
+            var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (usuarioId == null)
+                return Unauthorized();
+
+            bool pl = await _comentarioService.DisLikesAsync(id, int.Parse(usuarioId));
+
+            if (pl)
+            {
+                return Ok();
+            }
+            else
+            {
+                return NoContent();
+            }
+        }
+
     }
 }

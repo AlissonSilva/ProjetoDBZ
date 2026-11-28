@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using ProjetoDBZ.Models;
 using ProjetoDBZ.Models.User;
@@ -20,6 +16,8 @@ namespace ProjetoDBZ.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Favorito> Favoritos { get; set; }
         public DbSet<Comentario> Comentarios { get; set; }
+        public DbSet<ComentarioLike> ComentarioLikes { get; set; }
+        public DbSet<PersonagemLike> PersonagemLikes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
