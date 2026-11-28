@@ -10,5 +10,7 @@ namespace ProjetoDBZ.Services.Interfaces
         Task<List<ComentarioResponseDto>> GetByUsuario(int usuarioId);
         Task<ComentarioResponseDto> Update(PatchComentarioDto dto, int id);
         Task<IActionResult> Delete(int id);
+        Task<bool> LikesAsync(int id_comentario, int id_usuario);
+        Task<bool> DisLikesAsync(int id_comentario, int id_usuario);
     }
 }

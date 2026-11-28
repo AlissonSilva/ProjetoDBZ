@@ -85,7 +85,7 @@ namespace ProjetoDBZ.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePersonagem(int id)
         {
-            Boolean personagem = await _personagemService.DeleteAsync(id);
+            bool personagem = await _personagemService.DeleteAsync(id);
             if (!personagem)
             {
                 return NotFound();
@@ -167,6 +167,45 @@ namespace ProjetoDBZ.Controllers
             return NoContent();
         }
 
+        [HttpPost("{id}/likes")]
+        public async Task<IActionResult> Likes(int id)
+        {
+            var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (usuarioId == null)
+                return Unauthorized();
+
+            bool pl = await _personagemService.LikesAsync(id, int.Parse(usuarioId));
+
+            if (pl)
+            {
+                return Ok();
+            }
+            else
+            {
+                return NoContent();
+            }
+        }
+
+        [HttpPost("{id}/dislikes")]
+        public async Task<IActionResult> DisLikes(int id)
+        {
+            var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (usuarioId == null)
+                return Unauthorized();
+
+            bool pl = await _personagemService.DisLikesAsync(id, int.Parse(usuarioId));
+
+            if (pl)
+            {
+                return Ok();
+            }
+            else
+            {
+                return NoContent();
+            }
+        }
 
     }
 }
